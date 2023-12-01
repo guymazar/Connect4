@@ -185,14 +185,20 @@ def game_replay(game_id, colors):
     pygame.quit()
 
 #With CPU
-def cpu_move(board):
+def cpu_move(board, game_id):
+    
     valid_moves = []
     for col in range(7):
-        if col_full(board, col):
+        if not col_full(board, col):
             continue
         valid_moves.append(col)
 
     cpu_col = np.random.choice(valid_moves)
+    row = row_finder(board, col)
+    place_piece(board, row, col, 2)
+    add_move(game_id, col)
+    game = check_winning_move(board, row, col, 2)
+
     return cpu_col
 
 #Connect 4 w cpu
@@ -237,6 +243,7 @@ def play_game_with_cpu(colors, names, player1_score, player2_score):
                     place_piece(board, row, col, player)
                     add_move(game_id, col)
                     game = check_winning_move(board, row, col, player)
+                    cpu_move(board, game_id) # CPU always plays if player didn't win
                 else:
                     pygame.time.wait(1000)
                     draw_board(board, colors, screen)
@@ -247,11 +254,6 @@ def play_game_with_cpu(colors, names, player1_score, player2_score):
                     pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
                     pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
 
-
-        if player == 1:
-            player1_score += 1
-        else:
-            player2_score += 1
 
         score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
         screen.blit(score_text, (20, 740))
