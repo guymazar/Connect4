@@ -317,13 +317,20 @@ def choose_game_mode(initial_selection=True):
 # Main function
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
+    game_mode = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
 
-    player1_score, player2_score = 0, 0
-    player1 = (input("Enter player 1's name: ")).lower()
-    player2 = "CPU" if choose_game_mode() == 2 else (input("Enter player 2's name: ")).lower()
-    names = [player1, player2]
+    if game_mode == "1":
+        player1 = (input("Enter player 1's name: ")).lower()
+        player2 = (input("Enter player 2's name: ")).lower()
+        names = [player1, player2]
+        player1_score, player2_score = play_game(colors, names, player1_score, player2_score)       
 
-    player1_score, player2_score = play_game(colors, names, player1_score, player2_score)
+
+    elif game_mode == "2":
+        player1 = (input("Enter player 1's name: ")).lower()
+        names = [player1, "cpu"]
+        player1_score, player2_score = play_game_cpu(colors, names, player1_score, player2_score)
+
 
     while True:
         print("\n\nMain menu:")
@@ -334,13 +341,25 @@ def main():
         if choice == 1:
             same_players = input("\nAre the same players playing? (y/n): ")
             if same_players == "n":
-                player1 = (input("\nEnter player 1's name: ")).lower()
-                player2 = "CPU" if choose_game_mode() == 2 else (input("Enter player 2's name: ")).lower()
-                print()
-                names = [player1, player2]
-                player1_score, player2_score = 0, 0
+                game_mode = input("\nChoose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
 
-            player1_score, player2_score = play_game(colors, names, player1_score, player2_score)
+                if game_mode == "1":
+                    player1 = (input("Enter player 1's name: ")).lower()
+                    player2 = (input("Enter player 2's name: ")).lower()
+                    print()
+                    names = [player1, player2]
+                    player1_score, player2_score = play_game(colors, names, player1_score, player2_score)       
+
+
+                elif game_mode == "2":
+                    player1 = (input("Enter player 1's name: ")).lower()
+                    names = [player1, "cpu"]
+                    player1_score, player2_score = play_game_cpu(colors, names, player1_score, player2_score)
+                    
+            if game_mode == "1":
+                player1_score, player2_score = play_game(colors, names, player1_score, player2_score)
+            else:
+                player1_score, player2_score = play_game_cpu(colors, names, player1_score, player2_score)
 
         elif choice == 2:
             print("List of games: ")
