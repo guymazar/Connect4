@@ -14,8 +14,7 @@ def create_board():
 
 # Check that column isn't full
 def col_not_full(board, col):
-    full = (board[5][col] == 0)  # true if column isn't full
-    return full
+    return board[5][col] == 0  # true if column isn't full
 
 
 # Find row
@@ -86,7 +85,7 @@ class Node:
         self.next = None
 
 
-# create a linkest list class to store the moves
+# create a linked list class to store the moves
 class LinkedList:
     def __init__(self):
         self.head = None
@@ -182,21 +181,105 @@ def game_replay(game_id, colors):
     pygame.quit()
 
 
-# With CPU
-def cpu_move(board, game_id):
-    valid_moves = []
+class TreeNode:
+    def __init__(self, board, col=None, score=0):
+        self.board = board
+        self.children = []
+        self.col = col  # The column that led to this board state
+        self.score = score  # The score of this board state
+
+    def add_child(self, child_node):
+        self.children.append(child_node)
+
+
+def build_tree(current_node, depth, player):
+    if depth == 0:
+        return
+
     for col in range(7):
-        if not col_not_full(board, col):
-            continue
-        valid_moves.append(col)
+        if col_not_full(current_node.board, col):
+            new_board = [row[:] for row in current_node.board]
+            row = row_finder(new_board, col)
+            place_piece(new_board, row, col, player)
+            child_node = TreeNode(new_board, col)
+            current_node.add_child(child_node)
+            next_player = 2 if player == 1 else 1
+            build_tree(child_node, depth - 1, next_player)
 
-    cpu_col = np.random.choice(valid_moves)
-    row = row_finder(board, col)
-    place_piece(board, row, col, 2)
-    add_move(game_id, col)
-    game = check_winning_move(board, row, col, 2)
 
+def score_position(board, player):
+    score = 0  # Initialize score
+
+    ## Score center column
+    center_column = [board[i][3] for i in range(6)] 
+    center_count = center_column.count(player)  
+    score += center_count * 3  
+
+    ## Score Horizontal
+    for r in range(6): 
+        row = board[r] 
+        for c in range(4): 
+            window = row[c:c+4] 
+            score += evaluate_window(window, player)  
+
+    ## Score Vertical
+    for c in range(7):  
+        column = [board[r][c] for r in range(6)] 
+        for r in range(3): 
+            window = column[r:r+4]  
+            score += evaluate_window(window, player)  
+
+    ## Score Positive Sloped Diagonals
+    for r in range(3): 
+        for c in range(4): 
+            window = [board[r+i][c+i] for i in range(4)] 
+            score += evaluate_window(window, player)  
+
+    ## Score Negative Sloped Diagonals
+    for r in range(3, 6): 
+        for c in range(4):  
+            window = [board[r-i][c+i] for i in range(4)]
+            score += evaluate_window(window, player)  
+
+    return score  
+
+def evaluate_window(window, player):
+    score = 0 
+    opp_player = 1 if player == 2 else 2  
+
+    if window.count(player) == 4:
+        score += 100  
+    elif window.count(player) == 3 and window.count(0) == 1:
+        score += 10  
+    elif window.count(player) == 2 and window.count(0) == 2:
+        score += 5  
+
+    if window.count(opp_player) == 3 and window.count(0) == 1:
+        score -= 8 
+
+    return score  
+
+
+
+def cpu_move(board, game_id):
+
+    root = TreeNode(board)
+    build_tree(root, 3, 2) # depth of decision tree
+    max_score = float('-inf')
+    best_col = None
+
+    for child in root.children:
+        child.score = score_position(child.board, 2)  
+        if child.score > max_score:
+            max_score = child.score
+            best_col = child.col
+
+    row = row_finder(board, best_col)
+    place_piece(board, row, best_col, 2)
+    add_move(game_id, best_col)
+    game = check_winning_move(board, row, best_col, 2)
     return game
+
 
 
 # Connect 4
@@ -269,7 +352,6 @@ def play_game(colors, names, player1_score, player2_score, cpu):
                 pygame.time.wait(3000)
                 pygame.quit()
                 break
-
 
     return player1_score, player2_score
 
