@@ -280,6 +280,12 @@ def cpu_move(board, game_id):
     game = check_winning_move(board, row, best_col, 2)
     return game
 
+def check_draw(board):
+    for row in board:
+        if 0 in row:
+            return False 
+    return True  # All spots are filled, the game is a draw
+
 
 
 # Connect 4
@@ -329,12 +335,14 @@ def play_game(colors, names, player1_score, player2_score, cpu):
                     place_piece(board, row, col, player)
                     add_move(game_id, col)
                     game = check_winning_move(board, row, col, player)
+                    if not game:
+                            game= 'draw' if check_draw(board) else None                   
                     draw_board(board, colors, screen)
                     player = 2 if player == 1 else 1
             if game:
                 pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
                 pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
-                
+
                 if game == 'draw':
                     draw_text = win_font.render("Game is a draw!", True, colors[4])
                     screen.blit(draw_text, ((900 - draw_text.get_width()) // 2, 35))
@@ -343,9 +351,12 @@ def play_game(colors, names, player1_score, player2_score, cpu):
                     loser_name = names[1] if player == 2 else names[0]
                     set_game_result(game_id, winner_name, loser_name)
 
+
+
                     win_text = win_font.render(f"The winner is Player {winner_name}!", True, colors[4])
                     screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
-                
+
+                  # Update player scores
                     if game == 'draw':
                         player1_score += 1
                         player2_score += 1
@@ -353,11 +364,12 @@ def play_game(colors, names, player1_score, player2_score, cpu):
                         player1_score += 1
                     else:
                         player2_score += 1
+
+                    # Display updated scores
                     score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
                     screen.blit(score_text, (20, 740))
                     score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
                     screen.blit(score_text, (880 - score_text.get_width(), 740))
-
 
                 pygame.display.update()
                 pygame.time.wait(3000)
