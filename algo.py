@@ -8,12 +8,12 @@ games = {}
 
 # Create board
 def create_board():
-    board = np.zeros((6, 7))
+    board = [[0 for _ in range(7)] for _ in range(6)]
     return board
 
 
 # Check that column isn't full
-def col_full(board, col):
+def col_not_full(board, col):
     full = (board[5][col] == 0)  # true if column isn't full
     return full
 
@@ -28,7 +28,6 @@ def row_finder(board, col):
 # Place piece in correct row and column
 def place_piece(board, row, col, player):
     board[row][col] = player
-
 
 
 # Check that no 4 in a row
@@ -80,15 +79,14 @@ def draw_board(board, colors, screen):
     pygame.display.update()
 
 
-
-#create a node class for the linked list
+# create a node class for the linked list
 class Node:
     def __init__(self, data=None):
         self.data = data
         self.next = None
 
 
-#create a linkest list class to store the moves
+# create a linkest list class to store the moves
 class LinkedList:
     def __init__(self):
         self.head = None
@@ -117,7 +115,6 @@ class LinkedList:
             result.append(current.data)
             current = current.next
         return result
-
 
 
 # Creates dictionary for game
@@ -184,12 +181,12 @@ def game_replay(game_id, colors):
     pygame.time.wait(1000)
     pygame.quit()
 
-#With CPU
+
+# With CPU
 def cpu_move(board, game_id):
-    
     valid_moves = []
     for col in range(7):
-        if not col_full(board, col):
+        if not col_not_full(board, col):
             continue
         valid_moves.append(col)
 
@@ -201,7 +198,8 @@ def cpu_move(board, game_id):
 
     return game
 
-#Connect 4 
+
+# Connect 4
 def play_game(colors, names, player1_score, player2_score, cpu):
     game = False
     player = 1
@@ -219,7 +217,7 @@ def play_game(colors, names, player1_score, player2_score, cpu):
     win_font = pygame.font.SysFont(None, 40)
 
     welcome_text = font.render("Welcome to Connect 4!", True, colors[4])
-    screen.blit(welcome_text, ((900 - welcome_text.get_width())//2, 35))
+    screen.blit(welcome_text, ((900 - welcome_text.get_width()) // 2, 35))
     score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
     screen.blit(score_text, (20, 740))
     score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
@@ -230,6 +228,11 @@ def play_game(colors, names, player1_score, player2_score, cpu):
 
     while not game:
         for event in pygame.event.get():
+            print(event)
+            if cpu and player == 2:
+                game = cpu_move(board, game_id)  # CPU always plays if player didn't win
+                draw_board(board, colors, screen)
+                player = 2 if player == 1 else 1
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -238,40 +241,35 @@ def play_game(colors, names, player1_score, player2_score, cpu):
                 col -= 1
                 if col < 0 or col > 6:
                     continue
-                if col_full(board, col):
+                if col_not_full(board, col):
                     row = row_finder(board, col)
                     place_piece(board, row, col, player)
                     add_move(game_id, col)
                     game = check_winning_move(board, row, col, player)
-                    if cpu and not game:
-                        game = cpu_move(board, game_id) # CPU always plays if player didn't win
-                else:
-                    pygame.time.wait(1000)
                     draw_board(board, colors, screen)
-                    continue
+                    player = 2 if player == 1 else 1
+            if game:
+                pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
+                pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
 
-                draw_board(board, colors, screen)
-                if game:
-                    pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
-                    pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
+                score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
+                screen.blit(score_text, (20, 740))
+                score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
+                screen.blit(score_text, (880 - score_text.get_width(), 740))
 
+                winner_name = names[0] if player == 2 else names[1]
+                loser_name = names[1] if player == 2 else names[0]
+                set_game_result(game_id, winner_name, loser_name)
+                print(f"Player {winner_name} is the winner!")
 
-        score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
-        screen.blit(score_text, (20, 740))
-        score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
-        screen.blit(score_text, (880 - score_text.get_width(), 740))
-        win_text = win_font.render(f"The winner is Player {names[player-1]}!", True, colors[4])
-        screen.blit(win_text, ((900 - win_text.get_width())//2, 35))
+                win_text = win_font.render(f"The winner is Player {winner_name}!", True, colors[4])
+                screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
 
-        winner_name = names[player-1]
-        loser_name = names[1] if player == 1 else names[0]
-        set_game_result(game_id, winner_name, loser_name)
-        print(f"Player {winner_name} is the winner!")
+                pygame.display.update()
+                pygame.time.wait(3000)
+                pygame.quit()
+                break
 
-        pygame.display.update()
-        pygame.time.wait(3000)
-        pygame.quit()
-        break
 
     return player1_score, player2_score
 
@@ -319,17 +317,13 @@ def leaderboard():
 
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
-    cpu = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
+    cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
+    player1_score = 0
+    player2_score = 0
 
-    player1 = (input("Enter player 1's name: ")).lower()
-    if cpu:
-        names = [player1, 'CPU']
-    else:
-        player2 = (input("Enter player 2's name: ")).lower()
-        names = [player1, player2]
-    player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)       
-
-
+    player1 = input("Enter player 1's name: ").lower()
+    names = [player1, 'CPU'] if cpu_mode else [player1, input("Enter player 2's name: ").lower()]
+    player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu_mode)
 
     while True:
         print("\n\nMain menu:")
@@ -340,21 +334,22 @@ def main():
         if choice == 1:
             same_players = input("\nAre the same players playing? (y/n): ")
             if same_players == "n":
-                    cpu = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
-                    player1 = (input("Enter player 1's name: ")).lower()
-                    
-                    if cpu:
-                        names = [player1, 'CPU']
-                    else:
-                        player2 = (input("Enter player 2's name: ")).lower()
-                        names = [player1, player2]
+                cpu = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
+                player1 = (input("Enter player 1's name: ")).lower()
 
-            player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)       
+                if cpu:
+                    names = [player1, 'CPU']
+                else:
+                    player2 = (input("Enter player 2's name: ")).lower()
+                    names = [player1, player2]
+
+            player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)
 
         elif choice == 2:
             print("List of games: ")
             for idx, game_details in games.items():
-                print(f" - Game number: {idx}\n     Winner: {game_details['winner']}\n     Loser: {game_details['loser']}\n")
+                print(
+                    f" - Game number: {idx}\n     Winner: {game_details['winner']}\n     Loser: {game_details['loser']}\n")
 
             number = int(input("Enter game number: "))
             while number not in games:

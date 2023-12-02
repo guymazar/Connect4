@@ -185,9 +185,9 @@ def game_replay(game_id, colors):
 def cpu_move(board, game_id):
     valid_moves = [col for col in range(7) if col_not_full(board, col)]
 
-    # If there are no valid moves, return False indicating the game is not won
+    # If there are no valid moves, return True indicating the game is not won but over
     if not valid_moves:
-        return False
+        return True
 
     # Greedy Algorithm
     max_score = float('-inf')
@@ -196,6 +196,7 @@ def cpu_move(board, game_id):
     for col in valid_moves:
         row = row_finder(board, col)
         place_piece(board, row, col, 2)
+
         score = evaluate_position(board, col)  # Evaluate the position after placing the piece
         board[row][col] = 0  # Undo the move
 
@@ -279,7 +280,7 @@ def play_game(colors, names, player1_score, player2_score, cpu_mode):
             if event.type == pygame.QUIT:
                 game_over = True
 
-            if not cpu_mode or (player == 1 and not cpu_mode):
+            if not cpu_mode or (player == 1 and cpu_mode):
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
                     col = event.pos[0] // 100
@@ -309,7 +310,7 @@ def play_game(colors, names, player1_score, player2_score, cpu_mode):
                     draw_board(board, colors, screen)
                     pygame.display.update()
                     pygame.time.wait(1000)
-                    player = 3 - player  # Switch between 1 and 2
+                    player = 1 if player == 2 else 2
 
             elif cpu_mode and player == 2:  # Execute CPU move if playing against virtual player
                 pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
@@ -320,7 +321,7 @@ def play_game(colors, names, player1_score, player2_score, cpu_mode):
                 if game_over:
                     pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
                     pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
-                    win_text = win_font.render(f"The winner is Player {names[player]}!", True, colors[4])
+                    win_text = win_font.render(f"The winner is Player {names[player - 1]}!", True, colors[4])
                     screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
                     winner_name = names[player - 1]
                     loser_name = names[0] if player == 1 else names[1]
@@ -385,7 +386,8 @@ def main():
 
     player1 = input("Enter player 1's name: ").lower()
     names = [player1, 'CPU'] if cpu_mode else [player1, input("Enter player 2's name: ").lower()]
-
+    player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu_mode)
+    
     while True:
         print("\n\nMain menu:")
         print("  1. Play again \n  2. Replay game \n  3. Show leaderboard \n  4. Player score \n  5. Exit")
