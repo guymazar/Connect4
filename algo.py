@@ -124,7 +124,8 @@ def start_new_game():
     games[current_game_id] = {
         'moves': LinkedList(),
         'winner': None,
-        'loser': None
+        'loser': None,
+        'draw': None,
     }
     return current_game_id
 
@@ -396,25 +397,30 @@ def leaderboard():
     data = []
     wins = {}
     losses = {}
+    draws = {} 
 
     # Count wins and losses
     for game_id, game_info in games.items():
         winner = game_info.get('winner')
         loser = game_info.get('loser')
+        draw = game_info.get('draw')
 
         if winner:
             wins[winner] = wins.get(winner, 0) + 1
-        if loser:
+        elif loser:
             losses[loser] = losses.get(loser, 0) + 1
+        elif draw:
+            draws[draw] = draws.get(draw, 0) + 1
 
     players = set(wins.keys()).union(losses.keys())
     for player in sorted(players, key=lambda x: wins.get(x, 0) - losses.get(x, 0), reverse=True):
         won = wins.get(player, 0)
         lost = losses.get(player, 0)
+        draw = draws.get(player, 0)
         net_win = won - lost
-        data.append([player, won, lost, net_win])
+        data.append([player, won, lost,draw, net_win])
 
-    columns = ['Player', 'Wins', 'Losses', 'Net Wins']
+    columns = ['Player', 'Wins', 'Losses', 'Draw', 'Net Wins']
     df = pd.DataFrame(data, columns=columns)
     df.index = range(1, len(df) + 1)
     return df
