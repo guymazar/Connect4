@@ -334,19 +334,30 @@ def play_game(colors, names, player1_score, player2_score, cpu):
             if game:
                 pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
                 pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
+                
+                if game == 'draw':
+                    draw_text = win_font.render("Game is a draw!", True, colors[4])
+                    screen.blit(draw_text, ((900 - draw_text.get_width()) // 2, 35))
+                else:
+                    winner_name = names[0] if player == 2 else names[1]
+                    loser_name = names[1] if player == 2 else names[0]
+                    set_game_result(game_id, winner_name, loser_name)
 
-                score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
-                screen.blit(score_text, (20, 740))
-                score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
-                screen.blit(score_text, (880 - score_text.get_width(), 740))
+                    win_text = win_font.render(f"The winner is Player {winner_name}!", True, colors[4])
+                    screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
+                
+                    if game == 'draw':
+                        player1_score += 1
+                        player2_score += 1
+                    elif player == 1:
+                        player1_score += 1
+                    else:
+                        player2_score += 1
+                    score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
+                    screen.blit(score_text, (20, 740))
+                    score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
+                    screen.blit(score_text, (880 - score_text.get_width(), 740))
 
-                winner_name = names[0] if player == 2 else names[1]
-                loser_name = names[1] if player == 2 else names[0]
-                set_game_result(game_id, winner_name, loser_name)
-                print(f"Player {winner_name} is the winner!")
-
-                win_text = win_font.render(f"The winner is Player {winner_name}!", True, colors[4])
-                screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
 
                 pygame.display.update()
                 pygame.time.wait(3000)
@@ -404,7 +415,13 @@ def main():
     player2_score = 0
 
     player1 = input("Enter player 1's name: ").lower()
-    names = [player1, 'CPU'] if cpu_mode else [player1, input("Enter player 2's name: ").lower()]
+    cpu = None  
+    if cpu_mode:
+        cpu = True
+        names = [player1, 'CPU']
+    else:
+        player2 = input("Enter player 2's name: ").lower()
+        names = [player1, player2]
     player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu_mode)
 
     while True:
