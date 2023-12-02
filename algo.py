@@ -423,6 +423,9 @@ def leaderboard():
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
     cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
+    if cpu_mode not in [1,2]:
+        raise ValueError("Invalid input. Please enter 1 or 2.")
+    
     player1_score = 0
     player2_score = 0
 
