@@ -190,7 +190,7 @@ def cpu_move(board, game_id):
         return False
 
     # Greedy Algorithm
-    max_score = -float('inf')
+    max_score = float('-inf')
     best_col = valid_moves[0]
 
     for col in valid_moves:
