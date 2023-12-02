@@ -8,14 +8,12 @@ games = {}
 
 # Create board
 def create_board():
-    board = np.zeros((6, 7))
-    return board
+    return np.zeros((6, 7))
 
 
 # Check that column isn't full
-def col_full(board, col):
-    full = (board[5][col] == 0)  # true if column isn't full
-    return full
+def col_not_full(board, col):
+    return board[5][col] == 0  # true if column isn't full
 
 
 # Find row
@@ -28,7 +26,6 @@ def row_finder(board, col):
 # Place piece in correct row and column
 def place_piece(board, row, col, player):
     board[row][col] = player
-
 
 
 # Check that no 4 in a row
@@ -80,15 +77,14 @@ def draw_board(board, colors, screen):
     pygame.display.update()
 
 
-
-#create a node class for the linked list
+# create a node class for the linked list
 class Node:
     def __init__(self, data=None):
         self.data = data
         self.next = None
 
 
-#create a linkest list class to store the moves
+# create a linked list class to store the moves
 class LinkedList:
     def __init__(self):
         self.head = None
@@ -117,7 +113,6 @@ class LinkedList:
             result.append(current.data)
             current = current.next
         return result
-
 
 
 # Creates dictionary for game
@@ -182,14 +177,17 @@ def game_replay(game_id, colors):
         player = 2 if player == 1 else 1
 
     pygame.time.wait(1000)
+    pygame.display.flip()  # Update the display
     pygame.quit()
 
-#With CPU
+
+# With CPU
 def cpu_move(board, game_id):
-    valid_moves = []
-    for col in range(7):
-        if not col_full(board, col):
-            valid_moves.append(col)
+    valid_moves = [col for col in range(7) if col_not_full(board, col)]
+
+    # If there are no valid moves, return False indicating the game is not won
+    if not valid_moves:
+        return False
 
     # Greedy Algorithm
     max_score = -float('inf')
@@ -208,9 +206,10 @@ def cpu_move(board, game_id):
     row = row_finder(board, best_col)
     place_piece(board, row, best_col, 2)
     add_move(game_id, best_col)
-    game = check_winning_move(board, row, best_col, 2)
+    game_won = check_winning_move(board, row, best_col, 2)
 
-    return game
+    return game_won
+
 
 # Evaluate the position based on the number of connected pieces in all possible directions
 def evaluate_position(board, col):
@@ -219,37 +218,41 @@ def evaluate_position(board, col):
     score = 0
 
     # Check horizontal
-    for i in range(max(col-3, 0), min(col+4, 7)):
+    for i in range(max(col - 3, 0), min(col + 4, 7)):
         if i != col and board[row][i] == player:
             score += 1
 
     # Check vertical
-    for i in range(max(row-3, 0), min(row+4, 6)):
+    for i in range(max(row - 3, 0), min(row + 4, 6)):
         if i != row and board[i][col] == player:
             score += 1
 
     # Check positive diagonal
     for i in range(4):
         for j in range(3):
-            if board[j][i] == player and board[j+1][i+1] == player and board[j+2][i+2] == player and board[j+3][i+3] == player:
+            if board[j][i] == player and board[j + 1][i + 1] == player and board[j + 2][i + 2] == player and \
+                    board[j + 3][i + 3] == player:
                 score += 1
 
     # Check negative diagonal
     for i in range(4):
         for j in range(3, 6):
-            if board[j][i] == player and board[j-1][i+1] == player and board[j-2][i+2] == player and board[j-3][i+3] == player:
+            if board[j][i] == player and board[j - 1][i + 1] == player and board[j - 2][i + 2] == player and \
+                    board[j - 3][i + 3] == player:
                 score += 1
 
     return score
 
-#Connect 4 
-def play_game(colors, names, player1_score, player2_score, cpu):
-    game = False
-    player = 1
-    board = create_board()
-    game_id = start_new_game()
 
-    # Initialize Pygame
+# Connect 4
+
+def play_game(colors, names, player1_score, player2_score, cpu_mode):
+    game_id = start_new_game()
+    game_over = False
+
+    board = create_board()
+
+
     pygame.init()
 
     screen = pygame.display.set_mode((900, 800))
@@ -260,7 +263,7 @@ def play_game(colors, names, player1_score, player2_score, cpu):
     win_font = pygame.font.SysFont(None, 40)
 
     welcome_text = font.render("Welcome to Connect 4!", True, colors[4])
-    screen.blit(welcome_text, ((900 - welcome_text.get_width())//2, 35))
+    screen.blit(welcome_text, ((900 - welcome_text.get_width()) // 2, 35))
     score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
     screen.blit(score_text, (20, 740))
     score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
@@ -269,52 +272,69 @@ def play_game(colors, names, player1_score, player2_score, cpu):
     draw_board(board, colors, screen)
     pygame.display.update()
 
-    while not game:
+    player = 1  # Initialize the current player
+
+    while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
-                col = event.pos[0] // 100
-                col -= 1
-                if col < 0 or col > 6:
-                    continue
-                if col_full(board, col):
+                game_over = True
+
+            if not cpu_mode or (player == 1 and not cpu_mode):
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
+                    col = event.pos[0] // 100
+                    col -= 1
+                    if col < 0 or col > 6 or not col_not_full(board, col):
+                        continue
+
                     row = row_finder(board, col)
                     place_piece(board, row, col, player)
                     add_move(game_id, col)
-                    game = check_winning_move(board, row, col, player)
-                    if cpu and not game:
-                        game = cpu_move(board, game_id) # CPU always plays if player didn't win
-                else:
-                    pygame.time.wait(1000)
-                    draw_board(board, colors, screen)
-                    continue
+                    game_over = check_winning_move(board, row, col, player)
 
-                draw_board(board, colors, screen)
-                if game:
+                    # Check for a win before switching players
+                    if game_over:
+                        pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
+                        pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
+                        win_text = win_font.render(f"The winner is Player {names[player - 1]}!", True, colors[4])
+                        screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
+                        winner_name = names[player - 1]
+                        loser_name = names[1] if player == 1 else names[0]
+                        set_game_result(game_id, winner_name, loser_name)
+                        print(f"Player {winner_name} is the winner!")
+                        pygame.display.update()
+                        pygame.time.wait(3000)
+                        break  # Exit the loop if the game is won
+
+                    draw_board(board, colors, screen)
+                    pygame.display.update()
+                    pygame.time.wait(1000)
+                    player = 3 - player  # Switch between 1 and 2
+
+            elif cpu_mode and player == 2:  # Execute CPU move if playing against virtual player
+                pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
+                pygame.time.wait(500)
+                game_over = cpu_move(board, game_id)  # CPU always plays if the player didn't win
+
+                # Check for a win after the CPU move
+                if game_over:
                     pygame.draw.rect(screen, colors[3], (0, 705, 900, 100))
                     pygame.draw.rect(screen, colors[3], (0, 0, 900, 80))
+                    win_text = win_font.render(f"The winner is Player {names[player]}!", True, colors[4])
+                    screen.blit(win_text, ((900 - win_text.get_width()) // 2, 35))
+                    winner_name = names[player - 1]
+                    loser_name = names[0] if player == 1 else names[1]
+                    set_game_result(game_id, winner_name, loser_name)
+                    print(f"Player {winner_name} is the winner!")
+                    pygame.display.update()
+                    pygame.time.wait(3000)
+                    break  # Exit the loop if the game is won
 
+                player = 1  # Switch back to player 1 after the CPU move
 
-        score_text = score_font.render(f"{names[0]}'s score: {player1_score}", True, colors[4])
-        screen.blit(score_text, (20, 740))
-        score_text = score_font.render(f"{names[1]}'s score: {player2_score}", True, colors[4])
-        screen.blit(score_text, (880 - score_text.get_width(), 740))
-        win_text = win_font.render(f"The winner is Player {names[player-1]}!", True, colors[4])
-        screen.blit(win_text, ((900 - win_text.get_width())//2, 35))
-
-        winner_name = names[player-1]
-        loser_name = names[1] if player == 1 else names[0]
-        set_game_result(game_id, winner_name, loser_name)
-        print(f"Player {winner_name} is the winner!")
-
-        pygame.display.update()
-        pygame.time.wait(3000)
-        pygame.quit()
-        break
-
+    pygame.quit()
     return player1_score, player2_score
+
 
 
 # Counts wins and loses of player
@@ -322,9 +342,9 @@ def find_games_by_player(player_name):
     won_games = []
     lost_games = []
     for game_id, game_data in games.items():
-        if game_data['winner'] == player_name:
+        if game_data['winner'] and game_data['winner'].lower() == player_name:
             won_games.append(game_id)
-        elif game_data['loser'] == player_name:
+        elif game_data['loser'] and game_data['loser'].lower() == player_name:
             lost_games.append(game_id)
     return won_games, lost_games
 
@@ -357,22 +377,14 @@ def leaderboard():
     df.index = range(1, len(df) + 1)
     return df
 
-
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
-    cpu = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
+    cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
     player1_score = 0
     player2_score = 0
 
-    player1 = (input("Enter player 1's name: ")).lower()
-    if cpu:
-        names = [player1, 'CPU']
-    else:
-        player2 = (input("Enter player 2's name: ")).lower()
-        names = [player1, player2]
-    player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)       
-
-
+    player1 = input("Enter player 1's name: ").lower()
+    names = [player1, 'CPU'] if cpu_mode else [player1, input("Enter player 2's name: ").lower()]
 
     while True:
         print("\n\nMain menu:")
@@ -383,16 +395,11 @@ def main():
         if choice == 1:
             same_players = input("\nAre the same players playing? (y/n): ")
             if same_players == "n":
-                    cpu = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
-                    player1 = (input("Enter player 1's name: ")).lower()
-                    
-                    if cpu:
-                        names = [player1, 'CPU']
-                    else:
-                        player2 = (input("Enter player 2's name: ")).lower()
-                        names = [player1, player2]
+                cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against the virtual player): "))
+                player1 = input("Enter player 1's name: ").lower()
+                names = [player1, 'CPU'] if cpu_mode else [player1, input("Enter player 2's name: ").lower()]
 
-            player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)       
+            player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu_mode)
 
         elif choice == 2:
             print("List of games: ")
@@ -410,9 +417,9 @@ def main():
             print(df)
 
         elif choice == 4:
-            player_name = (input("Enter name of player: ")).lower()
+            player_name = input("Enter name of player: ").lower()
             wins, loses = find_games_by_player(player_name)
-            print(f" - Player name: {player_name}\n     Number of wins: {wins}\n     Number of loses: {loses}\n")
+            print(f" - Player name: {player_name}\n     Number of wins: {len(wins)}\n     Number of loses: {len(loses)}\n")
 
         elif choice == 5:
             break
@@ -420,5 +427,5 @@ def main():
         else:
             choice = int(input("Choose an option from the main menu: "))
 
-
-main()
+if __name__ == "__main__":
+    main()
