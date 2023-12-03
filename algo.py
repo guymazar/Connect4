@@ -16,19 +16,19 @@ def create_board():
 def col_not_full(board, col):
     return board[5][col] == 0  # true if column isn't full
 
-#Runtime complexity:
+#Runtime complexity: O(n)- iterates over the rows until first empty cell is found.
 # Find row
 def row_finder(board, col):
     for row in range(6):
         if board[row][col] == 0:
             return row
 
-
+#Runtime complexity: O(1) - directly accesses the position on the board.
 # Place piece in correct row and column
 def place_piece(board, row, col, player):
     board[row][col] = player
 
-
+#Runtime complexity: O(n) - 
 # Check that no 4 in a row
 def check_winning_move(board, row, col, player):
     # check horizontal
