@@ -136,7 +136,8 @@ def start_new_game():
     }
     return current_game_id
 
-
+#Runtime complexity: 
+#Worst and Average: O(1) - direct acces to game through game id.
 # Sets the winner and loser in dictionary
 def set_game_result(game_id, winner_name, loser_name):
     if game_id in games:
@@ -145,7 +146,8 @@ def set_game_result(game_id, winner_name, loser_name):
     else:
         print(f"Game {game_id} not found.")
 
-
+#Runtime complexity: 
+#Worst and Average: O(1) - direct access to tail of the linked list.
 # Adds move to linked list
 def add_move(game_id, move):
     if game_id in games:
@@ -153,7 +155,8 @@ def add_move(game_id, move):
     else:
         print(f"Game {game_id} not found.")
 
-
+#Runtime complexity: 
+#Worst and Average: O(n) - iterating through all the moves in linked list.
 # Game replay
 def game_replay(game_id, colors):
     pygame.init()
@@ -199,7 +202,8 @@ class TreeNode:
     def add_child(self, child_node):
         self.children.append(child_node)
 
-
+#Runtime complexity: 
+#Worst and Average: O(b^d) - b the branching factor and d depth, a new game state is creted for each possible move.
 def build_tree(current_node, depth, player):
     if depth == 0:
         return
@@ -214,7 +218,8 @@ def build_tree(current_node, depth, player):
             next_player = 2 if player == 1 else 1
             build_tree(child_node, depth - 1, next_player)
 
-
+#Runtime complexity: 
+#Worst and Average:
 def score_position(board, player):
     score = 0  # Initialize score
 
@@ -251,6 +256,9 @@ def score_position(board, player):
 
     return score  
 
+
+#Runtime complexity: 
+#Worst and Average: O(1).
 def evaluate_window(window, player):
     score = 0 
     opp_player = 1 if player == 2 else 2  
@@ -268,6 +276,8 @@ def evaluate_window(window, player):
     return score  
 
 
+#Runtime complexity: 
+#Worst and Average: O(b^d) - building tree.
 def cpu_move(board, game_id):
     root = TreeNode(board)
     build_tree(root, 6, 2)  # depth of decision tree
@@ -306,14 +316,18 @@ def cpu_move(board, game_id):
     return check_draw(board)
 
 
+#Runtime complexity: 
+#Worst and Average: O(n)- iterating through each row.
 def check_draw(board):
     for row in board:
         if 0 in row:
             return False 
-    return True  # All spots are filled, the game is a draw
+    return True  
 
 
 
+#Runtime complexity: 
+#Worst and Average: O(n^2) - for each player move, board is checked.
 # Connect 4
 def play_game(colors, names, player1_score, player2_score, cpu):
     game = False
@@ -405,6 +419,8 @@ def play_game(colors, names, player1_score, player2_score, cpu):
     return player1_score, player2_score
 
 
+#Runtime complexity: 
+#Worst and Average: O(n) - iterates through the games dictionary.
 # Counts wins and loses of player
 def find_games_by_player(player_name):
     won_games = []
@@ -417,6 +433,8 @@ def find_games_by_player(player_name):
     return won_games, lost_games
 
 
+#Runtime complexity: 
+#Worst and Average: O(n log n) - sorting.
 # Creates the leaderboard
 def leaderboard():
     data = []
@@ -451,6 +469,9 @@ def leaderboard():
     return df
 
 
+#Runtime complexity: 
+#Worst and Average: dependant on menu choices, worst being O(n log n) when leaderboard option is chosen, 
+# in other cases it would be O(n^2) determined by play_game.
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
     cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
