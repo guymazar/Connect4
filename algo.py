@@ -5,18 +5,18 @@ import pandas as pd
 current_game_id = 0
 games = {}
 
-
+#Runtime complexity: O(1)- initializes an empty 2D list with a fixed size.
 # Create board
 def create_board():
     board = [[0 for _ in range(7)] for _ in range(6)]
     return board
 
-
+#Runtime complexity: O(1)- directly accesses the last row of the column to determine if it is empty.
 # Check that column isn't full
 def col_not_full(board, col):
     return board[5][col] == 0  # true if column isn't full
 
-
+#Runtime complexity:
 # Find row
 def row_finder(board, col):
     for row in range(6):
