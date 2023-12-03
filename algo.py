@@ -5,30 +5,35 @@ import pandas as pd
 current_game_id = 0
 games = {}
 
-#Runtime complexity: O(1)- initializes an empty 2D list with a fixed size.
+#Runtime complexity: 
+#Worst and Average: O(1)- initializes an empty 2D list with a fixed size.
 # Create board
 def create_board():
     board = [[0 for _ in range(7)] for _ in range(6)]
     return board
 
-#Runtime complexity: O(1)- directly accesses the last row of the column to determine if it is empty.
+#Runtime complexity: 
+#Worst and Average: O(1)- directly accesses the last row of the column to determine if it is empty.
 # Check that column isn't full
 def col_not_full(board, col):
     return board[5][col] == 0  # true if column isn't full
 
-#Runtime complexity: O(n)- iterates over the rows until first empty cell is found.
+#Runtime complexity:
+#Worst and Average: O(n)- iterates over the rows until first empty cell is found.
 # Find row
 def row_finder(board, col):
     for row in range(6):
         if board[row][col] == 0:
             return row
 
-#Runtime complexity: O(1) - directly accesses the position on the board.
+#Runtime complexity:
+#Worst and Average: O(1) - directly accesses the position on the board.
 # Place piece in correct row and column
 def place_piece(board, row, col, player):
     board[row][col] = player
 
-#Runtime complexity: O(n) - 
+#Runtime complexity: 
+#Worst and Average: O(n) - checks by iterating through rows, columns, diagonals for four set cells.
 # Check that no 4 in a row
 def check_winning_move(board, row, col, player):
     # check horizontal
@@ -59,7 +64,8 @@ def check_winning_move(board, row, col, player):
 
     return False
 
-
+#Runtime complexity: 
+#Worst and Average: O(n) - iterates over ech roe and column.
 # Function to draw the board
 def draw_board(board, colors, screen):
     for col in range(7):
@@ -115,7 +121,8 @@ class LinkedList:
             current = current.next
         return result
 
-
+#Runtime complexity: 
+#Worst and Average: O(1) - constant time, creating new entry in games[].
 # Creates dictionary for game
 def start_new_game():
     global current_game_id
