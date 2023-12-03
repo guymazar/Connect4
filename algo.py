@@ -268,25 +268,43 @@ def evaluate_window(window, player):
     return score  
 
 
-
 def cpu_move(board, game_id):
-
     root = TreeNode(board)
-    build_tree(root, 3, 2) # depth of decision tree
+    build_tree(root, 6, 2)  # depth of decision tree
+
+    # Check for immediate winning moves
+    for child in root.children:
+        row = row_finder(board, child.col)
+        if check_winning_move(child.board, row, child.col, 2):
+            place_piece(board, row, child.col, 2)
+            add_move(game_id, child.col)
+            return True
+
+    # Check for blocking opponent's winning moves
+    for child in root.children:
+        row = row_finder(board, child.col)
+        if check_winning_move(child.board, row, child.col, 1):
+            place_piece(board, row, child.col, 2)
+            add_move(game_id, child.col)
+            return False
+
+    # Use score-based decision making
     max_score = float('-inf')
     best_col = None
-
     for child in root.children:
-        child.score = score_position(child.board, 2)  
+        child.score = score_position(child.board, 2)
         if child.score > max_score:
             max_score = child.score
             best_col = child.col
 
-    row = row_finder(board, best_col)
-    place_piece(board, row, best_col, 2)
-    add_move(game_id, best_col)
-    game = check_winning_move(board, row, best_col, 2)
-    return game
+    if best_col is not None:
+        row = row_finder(board, best_col)
+        place_piece(board, row, best_col, 2)
+        add_move(game_id, best_col)
+        return check_winning_move(board, row, best_col, 2)
+
+    return check_draw(board)
+
 
 def check_draw(board):
     for row in board:
@@ -368,7 +386,7 @@ def play_game(colors, names, player1_score, player2_score, cpu):
                     if game == 'draw':
                         player1_score += 1
                         player2_score += 1
-                    elif player == 1:
+                    elif player == 2:
                         player1_score += 1
                     else:
                         player2_score += 1
@@ -417,7 +435,7 @@ def leaderboard():
         elif loser:
             losses[loser] = losses.get(loser, 0) + 1
         elif draw:
-            draws[draw] = draws.get(draw, 0) + 1
+            draws[draw] = draws.get(draw, 0) + 1
 
     players = set(wins.keys()).union(losses.keys())
     for player in sorted(players, key=lambda x: wins.get(x, 0) - losses.get(x, 0), reverse=True):
