@@ -65,7 +65,7 @@ def check_winning_move(board, row, col, player):
     return False
 
 #Runtime complexity: 
-#Worst and Average: O(n) - iterates over ech roe and column.
+#Worst and Average: O(n) - iterates over each row and column.
 # Function to draw the board
 def draw_board(board, colors, screen):
     for col in range(7):
