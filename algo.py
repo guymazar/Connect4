@@ -5,36 +5,37 @@ import pandas as pd
 current_game_id = 0
 games = {}
 
-#Runtime complexity: 
-#Worst and Average: O(1)- initializes an empty 2D list with a fixed size.
-# Create board
+
+# create_board: Initializes the game board as a 6x7 grid filled with zeros.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def create_board():
     board = [[0 for _ in range(7)] for _ in range(6)]
     return board
 
-#Runtime complexity: 
-#Worst and Average: O(1)- directly accesses the last row of the column to determine if it is empty.
-# Check that column isn't full
+# col_not_full: Checks if a given column is not full (can still accept a piece).
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def col_not_full(board, col):
     return board[5][col] == 0  # true if column isn't full
 
-#Runtime complexity:
-#Worst and Average: O(n)- iterates over the rows until first empty cell is found.
-# Find row
+# row_finder: Finds the lowest available row in a specified column for a new piece.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def row_finder(board, col):
     for row in range(6):
         if board[row][col] == 0:
             return row
 
-#Runtime complexity:
-#Worst and Average: O(1) - directly accesses the position on the board.
-# Place piece in correct row and column
+# place_piece: Places a player's piece in the specified row and column.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def place_piece(board, row, col, player):
     board[row][col] = player
 
-#Runtime complexity: 
-#Worst and Average: O(n) - checks by iterating through rows, columns, diagonals for four set cells.
-# Check that no 4 in a row
+# check_winning_move: Checks if the last move made by a player resulted in a win.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def check_winning_move(board, row, col, player):
     # check horizontal
     for i in range(4):
@@ -64,9 +65,9 @@ def check_winning_move(board, row, col, player):
 
     return False
 
-#Runtime complexity: 
-#Worst and Average: O(n) - iterates over each row and column.
-# Function to draw the board
+# draw_board: Draws the current state of the board on the screen.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def draw_board(board, colors, screen):
     for col in range(7):
         for row in range(6):
@@ -84,18 +85,22 @@ def draw_board(board, colors, screen):
     pygame.display.update()
 
 
-# create a node class for the linked list
+# Node: A class representing a node in a linked list.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 class Node:
     def __init__(self, data=None):
         self.data = data
         self.next = None
 
 
-# create a linked list class to store the moves
+# LinkedList: A class representing a linked list to store game moves.
 class LinkedList:
     def __init__(self):
         self.head = None
 
+    # worst-case complexity: O(1)
+    # average-case complexity: O(1)
     def append_node(self, move):
         new_node = Node(move)
         if not self.head:
@@ -106,13 +111,18 @@ class LinkedList:
                 current = current.next
             current.next = new_node
 
+    # worst-case complexity: O(1)
+    # average-case complexity: O(1)
     def pop_first_node(self):
         if not self.head:
             return None
         data = self.head.data
         self.head = self.head.next
         return data
-
+    
+    # worst-case complexity: O(n)
+    # average-case complexity: O(n)
+    # where n is the number of elements in the list
     def iterate(self):
         result = []
         current = self.head
@@ -121,9 +131,9 @@ class LinkedList:
             current = current.next
         return result
 
-#Runtime complexity: 
-#Worst and Average: O(1) - constant time, creating new entry in games[].
 # Creates dictionary for game
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def start_new_game():
     global current_game_id
     current_game_id += 1
@@ -136,9 +146,9 @@ def start_new_game():
     }
     return current_game_id
 
-#Runtime complexity: 
-#Worst and Average: O(1) - direct acces to game through game id.
-# Sets the winner and loser in dictionary
+# start_new_game: Initiates a new game and stores its details in a global dictionary.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def set_game_result(game_id, winner_name, loser_name):
     if game_id in games:
         games[game_id]['winner'] = winner_name
@@ -146,18 +156,19 @@ def set_game_result(game_id, winner_name, loser_name):
     else:
         print(f"Game {game_id} not found.")
 
-#Runtime complexity: 
-#Worst and Average: O(1) - direct access to tail of the linked list.
-# Adds move to linked list
+# add_move: Adds a move to the linked list for a specific game.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def add_move(game_id, move):
     if game_id in games:
         games[game_id]['moves'].append_node(move)
     else:
         print(f"Game {game_id} not found.")
 
-#Runtime complexity: 
-#Worst and Average: O(n) - iterating through all the moves in linked list.
-# Game replay
+# game_replay: Replays a game move by move based on the moves stored in the linked list.
+# worst-case complexity: O(n)
+# average-case complexity: O(n)
+# where n is the number of moves
 def game_replay(game_id, colors):
     pygame.init()
 
@@ -192,6 +203,7 @@ def game_replay(game_id, colors):
     pygame.quit()
 
 
+# TreeNode: A class for the nodes of the game tree used in decision making for CPU moves.
 class TreeNode:
     def __init__(self, board, col=None, score=0):
         self.board = board
@@ -199,11 +211,15 @@ class TreeNode:
         self.col = col  # The column that led to this board state
         self.score = score  # The score of this board state
 
+    # worst-case complexity: O(1)
+    # average-case complexity: O(1)
     def add_child(self, child_node):
         self.children.append(child_node)
 
-#Runtime complexity: 
-#Worst and Average: O(b^d) - b the branching factor and d depth, a new game state is creted for each possible move.
+# build_tree: Recursively builds the game tree to a specified depth.
+# worst-case complexity: O(7^d)
+# average-case complexity: O(7^d)
+# where 7 is the maximum amount of children and d is the depth
 def build_tree(current_node, depth, player):
     if depth == 0:
         return
@@ -218,37 +234,38 @@ def build_tree(current_node, depth, player):
             next_player = 2 if player == 1 else 1
             build_tree(child_node, depth - 1, next_player)
 
-#Runtime complexity: 
-#Worst and Average:
+# score_position: Assigns a score to a board position for the CPU's decision-making process.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def score_position(board, player):
     score = 0  # Initialize score
 
-    ## Score center column
+    # Score center column
     center_column = [board[i][3] for i in range(6)] 
     center_count = center_column.count(player)  
     score += center_count * 3  
 
-    ## Score Horizontal
+    # Score Horizontal
     for r in range(6): 
         row = board[r] 
         for c in range(4): 
             window = row[c:c+4] 
             score += evaluate_window(window, player)  
 
-    ## Score Vertical
+    # Score Vertical
     for c in range(7):  
         column = [board[r][c] for r in range(6)] 
         for r in range(3): 
             window = column[r:r+4]  
             score += evaluate_window(window, player)  
 
-    ## Score Positive Sloped Diagonals
+    # Score Positive Sloped Diagonals
     for r in range(3): 
         for c in range(4): 
             window = [board[r+i][c+i] for i in range(4)] 
             score += evaluate_window(window, player)  
 
-    ## Score Negative Sloped Diagonals
+    # Score Negative Sloped Diagonals
     for r in range(3, 6): 
         for c in range(4):  
             window = [board[r-i][c+i] for i in range(4)]
@@ -256,9 +273,9 @@ def score_position(board, player):
 
     return score  
 
-
-#Runtime complexity: 
-#Worst and Average: O(1).
+# evaluate_window: Evaluates and scores a window of four positions in the game board.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def evaluate_window(window, player):
     score = 0 
     opp_player = 1 if player == 2 else 2  
@@ -275,9 +292,7 @@ def evaluate_window(window, player):
 
     return score  
 
-
-#Runtime complexity: 
-#Worst and Average: O(b^d) - building tree.
+# cpu_move: Makes a move for the CPU based on the game tree and scoring.
 def cpu_move(board, game_id):
     root = TreeNode(board)
     build_tree(root, 6, 2)  # depth of decision tree
@@ -315,20 +330,16 @@ def cpu_move(board, game_id):
 
     return check_draw(board)
 
-
-#Runtime complexity: 
-#Worst and Average: O(n)- iterating through each row.
+# check_draw: Checks if the game has reached a draw condition.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def check_draw(board):
     for row in board:
         if 0 in row:
             return False 
     return True  
 
-
-
-#Runtime complexity: 
-#Worst and Average: O(n^2) - for each player move, board is checked.
-# Connect 4
+# play_game: Main function to play the game, handling game logic and user interactions.
 def play_game(colors, names, player1_score, player2_score, cpu):
     game = False
     player = 1
@@ -418,9 +429,6 @@ def play_game(colors, names, player1_score, player2_score, cpu):
 
     return player1_score, player2_score
 
-
-#Runtime complexity: 
-#Worst and Average: O(n) - iterates through the games dictionary.
 # Counts wins and loses of player
 def find_games_by_player(player_name):
     won_games = []
@@ -433,9 +441,7 @@ def find_games_by_player(player_name):
     return won_games, lost_games
 
 
-#Runtime complexity: 
-#Worst and Average: O(n log n) - sorting.
-# Creates the leaderboard
+# leaderboard: Creates a leaderboard from the game results stored in the global dictionary.
 def leaderboard():
     data = []
     wins = {}
@@ -468,10 +474,7 @@ def leaderboard():
     df.index = range(1, len(df) + 1)
     return df
 
-
-#Runtime complexity: 
-#Worst and Average: dependant on menu choices, worst being O(n log n) when leaderboard option is chosen, 
-# in other cases it would be O(n^2) determined by play_game.
+# main: The main function to run the Connect 4 game, including user menu and game flow.
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
     cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
