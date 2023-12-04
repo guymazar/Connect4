@@ -372,7 +372,6 @@ def play_game(colors, names, player1_score, player2_score, cpu):
 
     while not game:
         for event in pygame.event.get():
-            print(event)
             if cpu and player == 2:
                 game = cpu_move(board, game_id)  # CPU always plays if player didn't win
                 draw_board(board, colors, screen)
@@ -484,45 +483,52 @@ def leaderboard():
 # main: The main function to run the Connect 4 game, including user menu and game flow.
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
-    cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
+    cpu_mode = 0
+    while cpu_mode not in [1,2]:
+        cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): "))
 
     player1_score = 0
     player2_score = 0
 
     player1 = input("Enter player 1's name: ").lower()
-    cpu = None
-    if cpu_mode:
-        cpu = True
+
+    if cpu_mode == 2:
+        cpu_mode = True
         names = [player1, 'CPU']
     else:
         player2 = input("Enter player 2's name: ").lower()
         names = [player1, player2]
+        cpu_mode = False
     player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu_mode)
 
     while True:
         print("\n\nMain menu:")
         print("  1. Play again \n  2. Replay game \n  3. Show leaderboard \n  4. Player score \n  5. Exit")
         print()
-        try:
-            choice = int(input("Choose an option from the main menu: "))
-            if choice not in (1, 2, 3, 4, 5):
-                raise ValueError("Invalid input. Please enter a number between 1 and 5.")
-        except ValueError as ve:
-            print(ve)
-            continue
-
+        choice = -1
+        while choice < 0 or choice > 5:
+            choice = int(input("Choose an option from the main menu (1-5): "))
+          
 
         if choice == 1:
             same_players = input("\nAre the same players playing? (y/n): ")
             if same_players == "n":
-                cpu = input("Choose game mode (1 for 2 players, 2 for playing aginst virtual player): ")
-                player1 = (input("Enter player 1's name: ")).lower()
+                cpu_mode = 0
+                while cpu_mode not in [1,2]:
+                    cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): "))
 
-                if cpu:
+                player1_score = 0
+                player2_score = 0
+
+                player1 = input("Enter player 1's name: ").lower()
+                if cpu_mode == 2:
+                    cpu_mode = True
                     names = [player1, 'CPU']
                 else:
-                    player2 = (input("Enter player 2's name: ")).lower()
+                    player2 = input("Enter player 2's name: ").lower()
                     names = [player1, player2]
+                    cpu_mode = False
+  
 
             player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)
 
