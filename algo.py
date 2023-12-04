@@ -506,6 +506,7 @@ def main():
         print("  1. Play again \n  2. Replay game \n  3. Show leaderboard \n  4. Player score \n  5. Exit")
         print()
         choice = -1
+        # error handling to make sure user inputs a number between 1 and 5
         while choice < 0 or choice > 5:
             choice = int(input("Choose an option from the main menu (1-5): "))
           
