@@ -480,6 +480,7 @@ def leaderboard():
     df.index = range(1, len(df) + 1)
     return df
 
+# Not possible to calculate the time complexity for this function as it depends on a lot of different factors.
 # main: The main function to run the Connect 4 game, including user menu and game flow.
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
