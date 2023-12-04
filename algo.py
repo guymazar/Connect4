@@ -511,7 +511,9 @@ def main():
           
 
         if choice == 1:
-            same_players = input("\nAre the same players playing? (y/n): ")
+            same_players = None
+            while same_players not in ["y", "n"]:
+                same_players = input("\nAre the same players playing? (y/n): ")
             if same_players == "n":
                 cpu_mode = 0
                 while cpu_mode not in [1,2]:
@@ -530,7 +532,7 @@ def main():
                     cpu_mode = False
   
 
-            player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu)
+            player1_score, player2_score = play_game(colors, names, player1_score, player2_score, cpu_mode)
 
         elif choice == 2:
             print("List of games: ")
