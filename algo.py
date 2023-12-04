@@ -429,6 +429,8 @@ def play_game(colors, names, player1_score, player2_score, cpu):
 
     return player1_score, player2_score
 
+#Average Case Time Complexity: O(n)
+#Worst Case Time Complexity: O(n)
 # Counts wins and loses of player
 def find_games_by_player(player_name):
     won_games = []
@@ -440,7 +442,8 @@ def find_games_by_player(player_name):
             lost_games.append(game_id)
     return won_games, lost_games
 
-
+# Worst Case Time Complexity: O(n + m * log(m))
+# Average Case Time Complexity: O(n + m * log(m))
 # leaderboard: Creates a leaderboard from the game results stored in the global dictionary.
 def leaderboard():
     data = []
