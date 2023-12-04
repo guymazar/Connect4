@@ -339,6 +339,8 @@ def check_draw(board):
             return False 
     return True  
 
+# worst-case complexity: O(n^2)
+# average-case complexity: depends on various factors like skill level of player but for cpu it would be o(b^d) where b is the branching factor (number of possible moves at each state) and d is the depth of the search tree.
 # play_game: Main function to play the game, handling game logic and user interactions.
 def play_game(colors, names, player1_score, player2_score, cpu):
     game = False
@@ -481,12 +483,12 @@ def leaderboard():
 def main():
     colors = [(255, 0, 0), (255, 255, 0), (0, 0, 255), (0, 0, 0), (255, 255, 255)]
     cpu_mode = int(input("Choose game mode (1 for 2 players, 2 for playing against virtual player): ")) == 2
-    
+
     player1_score = 0
     player2_score = 0
 
     player1 = input("Enter player 1's name: ").lower()
-    cpu = None  
+    cpu = None
     if cpu_mode:
         cpu = True
         names = [player1, 'CPU']
@@ -499,7 +501,14 @@ def main():
         print("\n\nMain menu:")
         print("  1. Play again \n  2. Replay game \n  3. Show leaderboard \n  4. Player score \n  5. Exit")
         print()
-        choice = int(input("Choose an option from the main menu: "))
+        try:
+            choice = int(input("Choose an option from the main menu: "))
+            if choice not in (1, 2, 3, 4, 5):
+                raise ValueError("Invalid input. Please enter a number between 1 and 5.")
+        except ValueError as ve:
+            print(ve)
+            continue
+
 
         if choice == 1:
             same_players = input("\nAre the same players playing? (y/n): ")
@@ -539,8 +548,6 @@ def main():
         elif choice == 5:
             break
 
-        else:
-            choice = int(input("Choose an option from the main menu: "))
 
-
-main()
+if __name__ == "__main__":
+    main()
