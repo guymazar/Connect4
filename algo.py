@@ -293,6 +293,8 @@ def evaluate_window(window, player):
     return score  
 
 # cpu_move: Makes a move for the CPU based on the game tree and scoring.
+# worst-case complexity: O(1)
+# average-case complexity: O(1)
 def cpu_move(board, game_id):
     root = TreeNode(board)
     build_tree(root, 6, 2)  # depth of decision tree
@@ -337,11 +339,11 @@ def check_draw(board):
     for row in board:
         if 0 in row:
             return False 
-    return True  
-
+    return True 
+    
+# play_game: Main function to play the game, handling game logic and user interactions.
 # worst-case complexity: O(n^2)
 # average-case complexity: depends on various factors like skill level of player but for cpu it would be o(b^d) where b is the branching factor (number of possible moves at each state) and d is the depth of the search tree.
-# play_game: Main function to play the game, handling game logic and user interactions.
 def play_game(colors, names, player1_score, player2_score, cpu):
     game = False
     player = 1
